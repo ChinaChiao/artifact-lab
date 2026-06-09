@@ -3,10 +3,16 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [vue()],
+
+  // Tauri expects a fixed port for development
   server: {
     port: 5173,
-    proxy: {
-      "/api": "http://127.0.0.1:8000",
-    },
+    strictPort: true,
   },
+
+  // Prevent vite from obscuring rust errors
+  clearScreen: false,
+
+  // Tauri expects environment variables to be prefixed with VITE_
+  envPrefix: ["VITE_", "TAURI_"],
 });

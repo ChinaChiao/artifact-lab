@@ -1,14 +1,28 @@
 <template>
   <main class="shell">
     <section class="app-head">
-      <div>
-        <p class="eyebrow">Artifact Lab</p>
-        <h1>圣遗物 / 遗器概率实验台</h1>
+      <div class="brand-block">
+        <div class="brand-mark" aria-hidden="true">
+          <FlaskConical :size="24" />
+        </div>
+        <div>
+          <p class="eyebrow">Artifact Lab</p>
+          <h1>圣遗物 / 遗器概率实验台</h1>
+        </div>
       </div>
       <nav class="tabs" aria-label="功能切换">
-        <button :class="{ active: view === 'items' }" type="button" @click="view = 'items'">单件模拟</button>
-        <button :class="{ active: view === 'graduation' }" type="button" @click="view = 'graduation'">毕业模拟</button>
-        <button :class="{ active: view === 'average' }" type="button" @click="view = 'average'">平均统计</button>
+        <button :class="{ active: view === 'items' }" type="button" @click="view = 'items'">
+          <PackageSearch :size="16" />
+          单件模拟
+        </button>
+        <button :class="{ active: view === 'graduation' }" type="button" @click="view = 'graduation'">
+          <Target :size="16" />
+          毕业模拟
+        </button>
+        <button :class="{ active: view === 'average' }" type="button" @click="view = 'average'">
+          <ChartNoAxesCombined :size="16" />
+          平均统计
+        </button>
       </nav>
     </section>
 
@@ -17,13 +31,19 @@
     <section v-if="view === 'items'" class="workspace three-col">
       <aside class="panel controls">
         <div class="segmented">
-          <button :class="{ active: itemGame === 'genshin' }" type="button" @click="switchItemGame('genshin')">原神</button>
-          <button :class="{ active: itemGame === 'hsr' }" type="button" @click="switchItemGame('hsr')">崩铁</button>
+          <button :class="{ active: itemGame === 'genshin' }" type="button" @click="switchItemGame('genshin')">
+            <Sparkles :size="16" />
+            原神
+          </button>
+          <button :class="{ active: itemGame === 'hsr' }" type="button" @click="switchItemGame('hsr')">
+            <Activity :size="16" />
+            崩铁
+          </button>
         </div>
 
         <label v-if="itemGame === 'genshin'">
           来源
-          <select v-model="artifactForm.source" @change="handleArtifactSourceChange">
+          <select v-model="artifactForm.source" name="artifact-source" @change="handleArtifactSourceChange">
             <option value="domain">90级圣遗物副本</option>
             <option value="strongbox">合成台三合一</option>
             <option value="boss">世界/周本 Boss</option>
@@ -33,7 +53,7 @@
 
         <label v-else>
           刷取入口
-          <select v-model="relicForm.source" @change="handleRelicSourceChange">
+          <select v-model="relicForm.source" name="relic-source" @change="handleRelicSourceChange">
             <option value="cavern">侵蚀隧洞</option>
             <option value="planar">位面饰品</option>
           </select>
@@ -52,7 +72,7 @@
           </div>
           <div class="set-grid">
             <label v-for="pool in activeSetPools" :key="pool.id" class="set-option">
-              <input :checked="activeItemForm.poolIds.includes(pool.id)" type="checkbox" @change="toggleItemPool(pool.id)" />
+              <input :checked="activeItemForm.poolIds.includes(pool.id)" name="item-pool" type="checkbox" @change="toggleItemPool(pool.id)" />
               <span>
                 <strong>{{ pool.name }}</strong>
                 <em>{{ describePool(pool) }}</em>
@@ -62,18 +82,23 @@
         </section>
 
         <div class="button-row">
-          <button type="button" :disabled="busy" @click="generateCurrentItem">生成</button>
-          <button type="button" :disabled="busy || !currentItem || currentItem.level >= maxItemLevel" @click="enhanceCurrentItem(false)">
+          <button class="primary-action" type="button" :disabled="busy" @click="generateCurrentItem">
+            <Dices :size="17" />
+            生成
+          </button>
+          <button class="secondary-action" type="button" :disabled="busy || !currentItem || currentItem.level >= maxItemLevel" @click="enhanceCurrentItem(false)">
+            <Hammer :size="17" />
             强化一次
           </button>
-          <button type="button" :disabled="busy || !currentItem || currentItem.level >= maxItemLevel" @click="enhanceCurrentItem(true)">
+          <button class="secondary-action" type="button" :disabled="busy || !currentItem || currentItem.level >= maxItemLevel" @click="enhanceCurrentItem(true)">
+            <WandSparkles :size="17" />
             强化到满级
           </button>
         </div>
 
         <section class="note-panel">
           <h2>迁移后的职责</h2>
-          <p>抽取与强化全部由 FastAPI 调用 Python 模型完成，Vue 只负责参数、状态和展示。</p>
+          <p>抽取与强化全部由本地 Rust 模型完成，Vue 只负责参数、状态和展示。</p>
         </section>
       </aside>
 
@@ -114,7 +139,7 @@
             </article>
           </section>
         </article>
-        <div v-else class="empty-state">点击生成，后端会返回一件 5 星装备。</div>
+        <div v-else class="empty-state">点击生成，本地模型会返回一件 5 星装备。</div>
       </section>
 
       <aside class="panel stats-panel">
@@ -144,14 +169,14 @@
         <div class="field-grid">
           <label>
             游戏
-            <select v-model="graduation.game" @change="resetGraduation">
+            <select v-model="graduation.game" name="graduation-game" @change="resetGraduation">
               <option value="genshin">原神圣遗物</option>
               <option value="hsr">崩铁遗器</option>
             </select>
           </label>
           <label>
             定位
-            <select v-model="graduation.role" @change="resetGraduation">
+            <select v-model="graduation.role" name="graduation-role" @change="resetGraduation">
               <option value="dps">主C</option>
               <option value="support">辅助</option>
             </select>
@@ -165,7 +190,7 @@
           </div>
           <div class="tag-grid">
             <label v-for="stat in gameData.effective" :key="stat" class="tag-option">
-              <input :checked="graduation.effective_tags.includes(stat)" type="checkbox" @change="toggleTag(stat)" />
+              <input :checked="graduation.effective_tags.includes(stat)" name="effective-tag" type="checkbox" @change="toggleTag(stat)" />
               <span>{{ statLabel(stat) }}</span>
             </label>
           </div>
@@ -181,15 +206,15 @@
               <div class="goal-name">{{ statLabel(stat) }}</div>
               <label>
                 基础
-                <input v-model.number="graduation.base[stat]" type="number" step="0.1" @input="syncGoalsAfterBaseOrMain" />
+                <input v-model.number="graduation.base[stat]" :name="`base-${stat}`" type="number" step="0.1" @input="syncGoalsAfterBaseOrMain" />
               </label>
               <label>
                 面板目标
-                <input v-model.number="graduation.panel_goals[stat]" type="number" step="0.1" @input="syncGoal(stat, 'panel')" />
+                <input v-model.number="graduation.panel_goals[stat]" :name="`panel-goal-${stat}`" type="number" step="0.1" @input="syncGoal(stat, 'panel')" />
               </label>
               <label>
                 词条次数
-                <input v-model.number="graduation.hit_goals[stat]" type="number" step="1" @input="syncGoal(stat, 'hits')" />
+                <input v-model.number="graduation.hit_goals[stat]" :name="`hit-goal-${stat}`" type="number" step="1" @input="syncGoal(stat, 'hits')" />
               </label>
             </div>
           </div>
@@ -203,7 +228,7 @@
           <div class="field-grid">
             <label v-for="slot in slotsForGame" :key="slot">
               {{ slotLabel(slot) }}
-              <select v-model="graduation.main_plan[slot]" @change="syncGoalsAfterBaseOrMain">
+              <select v-model="graduation.main_plan[slot]" :name="`main-plan-${slot}`" @change="syncGoalsAfterBaseOrMain">
                 <option v-for="stat in mainOptions[slot]" :key="stat" :value="stat">{{ statLabel(stat) }}</option>
               </select>
             </label>
@@ -214,24 +239,22 @@
           <div class="field-grid">
             <label>
               最大刷取次数
-              <input v-model.number="graduation.max_runs" type="number" min="1" step="100" />
+              <input v-model.number="graduation.max_runs" name="max-runs" type="number" min="1" step="100" />
             </label>
             <label>
               每天刷取次数
-              <input v-model.number="graduation.runs_per_day" type="number" min="1" step="1" />
+              <input v-model.number="graduation.runs_per_day" name="runs-per-day" type="number" min="1" step="1" />
             </label>
             <label v-if="view === 'average'">
               模拟次数
-              <input v-model.number="graduation.sample_count" type="number" min="1" max="5000" step="50" />
-            </label>
-            <label v-if="view === 'average'">
-              计算线程
-              <input v-model.number="graduation.worker_count" type="number" min="1" :max="maxWorkerCount" step="1" />
+              <input v-model.number="graduation.sample_count" name="sample-count" type="number" min="1" max="5000" step="50" />
             </label>
           </div>
         </section>
 
-        <button type="button" :disabled="busy" @click="view === 'average' ? runAverageSimulation() : runSingleSimulation()">
+        <button class="primary-action run-action" type="button" :disabled="busy" @click="view === 'average' ? runAverageSimulation() : runSingleSimulation()">
+          <RefreshCw v-if="busy" :size="17" />
+          <Play v-else :size="17" />
           {{ busy ? '计算中...' : view === 'average' ? '开始统计' : '开始模拟' }}
         </button>
       </aside>
@@ -285,15 +308,25 @@
           </div>
           <div class="chart-tools" aria-label="曲线缩放控制">
             <div class="chart-zoom-buttons">
-              <button type="button" :disabled="chartZoom <= 1" @click="zoomChart(0.5)">缩小</button>
-              <button type="button" :disabled="chartZoom >= maxChartZoom" @click="zoomChart(2)">放大</button>
-              <button type="button" @click="resetChartView">重置</button>
+              <button type="button" :disabled="chartZoom <= 1" @click="zoomChart(0.5)">
+                <ZoomOut :size="15" />
+                缩小
+              </button>
+              <button type="button" :disabled="chartZoom >= maxChartZoom" @click="zoomChart(2)">
+                <ZoomIn :size="15" />
+                放大
+              </button>
+              <button type="button" @click="resetChartView">
+                <RotateCcw :size="15" />
+                重置
+              </button>
             </div>
             <label class="chart-pan">
               <span class="chart-view-label">{{ chartViewLabel }}</span>
               <input
                 v-model.number="pendingChartPan"
                 :disabled="chartZoom <= 1"
+                name="chart-pan"
                 type="range"
                 min="0"
                 max="1"
@@ -499,16 +532,16 @@
             <strong>{{ busy ? '统计正在路上' : '先设定一个毕业目标' }}</strong>
             <p>
               {{ busy
-                ? `已完成 ${averageProgress.done}/${averageProgress.total || graduation.sample_count} 个样本，结果会边跑边刷新。`
+                ? `Rust 后端正在计算 ${averageProgress.total || graduation.sample_count} 个样本。`
                 : '左侧调整目标、样本数和线程后点击开始统计。平均值看总体成本，P90/P95 更适合估算保守资源。' }}
             </p>
             <div v-if="busy" class="progress-track" aria-label="平均统计进度">
               <i :style="{ width: `${averageProgressPercent}%` }"></i>
             </div>
             <div class="empty-tips">
-              <span>平均刷取 = 达标样本的平均次数</span>
-              <span>P90 = 90% 样本能在该次数内完成</span>
-              <span>未达标样本会计入风险，不拉低平均值</span>
+              <span>均值/分位数默认只统计达标样本</span>
+              <span>保守分位数会把未达标视为右删失</span>
+              <span>未达标样本会进入风险和资源下界</span>
             </div>
           </div>
         </section>
@@ -537,8 +570,8 @@
 
             <article class="visual-card">
               <div class="visual-head">
-                <strong>刷取成本阶梯</strong>
-                <span>达到每档平均要刷几次</span>
+                <strong>条件成本阶梯</strong>
+                <span>仅统计已达成该档的样本</span>
               </div>
               <svg class="mini-chart" viewBox="0 0 720 260" role="img" aria-label="平均刷取成本阶梯">
                 <line x1="48" y1="30" x2="48" y2="214" />
@@ -555,17 +588,33 @@
           <div class="average-visual-grid lower">
             <article class="visual-card wide">
               <div class="visual-head">
-                <strong>100% 达成分布</strong>
-                <span>{{ compactAverageBuckets.length }} 个有效区间</span>
+                <strong>达标概率曲线</strong>
+                <span>{{ probabilityScaleLabel }}</span>
               </div>
-              <svg class="histogram-chart" viewBox="0 0 720 260" role="img" aria-label="100%达成分布">
+              <svg class="probability-chart" viewBox="0 0 720 260" role="img" aria-label="达标概率曲线">
                 <line x1="48" y1="30" x2="48" y2="214" />
                 <line x1="48" y1="214" x2="690" y2="214" />
-                <g v-for="bucket in averageBucketBars" :key="bucket.key">
-                  <rect :x="bucket.x" :y="bucket.y" :width="bucket.width" :height="bucket.height" rx="5" />
-                  <text v-if="bucket.count" :x="bucket.x + bucket.width / 2" :y="bucket.y - 6" text-anchor="middle">{{ bucket.count }}</text>
+                <g v-for="line in probabilityGridLines" :key="line.label">
+                  <line class="guide-line" x1="48" :y1="line.y" x2="690" :y2="line.y" />
+                  <text x="12" :y="line.y + 4">{{ line.label }}</text>
                 </g>
+                <path class="probability-path" :d="averageProbabilityPath" />
+                <g v-for="point in averageProbabilityPoints" :key="point.label">
+                  <circle :cx="point.x" :cy="point.y" r="5" />
+                  <text :x="point.x" :y="point.valueY" text-anchor="middle">{{ point.valueText }}</text>
+                  <text :x="point.x" y="238" text-anchor="middle">{{ point.label }}</text>
+                </g>
+                <line class="censor-line" :x1="690" y1="30" :x2="690" y2="214" />
+                <text x="690" y="24" text-anchor="end">上限</text>
               </svg>
+              <p v-if="isProbabilityZoomed" class="chart-note">
+                当前达标率较低，纵轴已局部放大到 {{ formatPercent(probabilityYAxisMax) }}，百分比仍为真实样本占比。
+              </p>
+              <div class="censor-summary">
+                <span>删失样本 {{ averageResult.failed }}/{{ averageResult.done }}</span>
+                <strong>{{ `${(averageResult.censoredRate * 100).toFixed(1)}%` }}</strong>
+                <em>这些样本只知道成本超过当前上限，不能并入普通完成时间分布。</em>
+              </div>
             </article>
 
             <article class="visual-card insight-card">
@@ -592,16 +641,23 @@
           </div>
           <div class="analysis-grid">
             <article class="analysis-card">
-              <span>中位数</span>
+              <span>条件中位数</span>
               <strong>{{ formatRuns(averageResult?.median) }}</strong>
             </article>
             <article class="analysis-card">
-              <span>P95 刷取</span>
-              <strong>{{ formatRuns(averageResult?.p95) }}</strong>
+              <span>保守 P95</span>
+              <strong>{{ formatConservativeQuantile('p95') }}</strong>
             </article>
             <article class="analysis-card">
-              <span>平均天数</span>
-              <strong>{{ formatDays(averageResult?.averageDays) }}</strong>
+              <span>资源期望下界</span>
+              <strong>{{ formatDays(averageResult?.censoredDaysLowerBound) }}</strong>
+            </article>
+          </div>
+          <div v-if="averageResult" class="quantile-grid">
+            <article v-for="quantile in averageConservativeQuantiles" :key="quantile.key" class="quantile-card" :class="{ censored: quantile.censored }">
+              <span>{{ quantile.label }}</span>
+              <strong>{{ quantile.censored ? '上限内不可估' : formatRuns(quantile.run) }}</strong>
+              <em>{{ quantile.censored ? `至少需要 ${quantile.required}/${averageResult.done} 个达标样本` : `覆盖 ${quantile.required}/${averageResult.done} 个样本` }}</em>
             </article>
           </div>
           <div class="threshold-table">
@@ -624,11 +680,11 @@
               </div>
             </article>
           </div>
-          <div class="bucket-table">
-            <div v-for="bucket in compactAverageBuckets" :key="bucket.key" class="bucket-row">
-              <span>{{ bucket.label }}</span>
-              <strong>{{ formatNumber(bucket.count) }}</strong>
-              <em>{{ averageResult?.done ? ((bucket.count / averageResult.done) * 100).toFixed(1) : '0.0' }}%</em>
+          <div class="probability-table">
+            <div v-for="point in averageProbabilityPoints" :key="point.label" class="probability-row">
+              <span>{{ point.label }} · {{ formatRuns(point.run) }}</span>
+              <strong>{{ `${(point.probability * 100).toFixed(1)}%` }}</strong>
+              <em>{{ formatDays(point.days) }}</em>
             </div>
           </div>
         </section>
@@ -638,30 +694,41 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
+import {
+  Activity,
+  ChartNoAxesCombined,
+  Dices,
+  FlaskConical,
+  Hammer,
+  PackageSearch,
+  Play,
+  RefreshCw,
+  RotateCcw,
+  Sparkles,
+  Target,
+  WandSparkles,
+  ZoomIn,
+  ZoomOut,
+} from "@lucide/vue";
 import {
   enhanceArtifact,
   enhanceRelic,
   generateArtifact,
   generateRelic,
   getMeta,
-} from "./api";
+  simulateGraduation,
+  summarizeGraduationAverage,
+} from "./localApi";
 import {
-  COMPLETION_THRESHOLDS,
   convertGoalValue,
   critValue as coreCritValue,
-  DEFAULT_MAIN_PLAN,
   describeSubstats as describeItem,
   formatNumber,
   formatStatValue,
-  GAME_STATS,
-  MAIN_OPTIONS,
   milestoneTypeLabel as milestoneTypeName,
-  simulate,
-  slotList,
   SLOT_LABELS,
   STAT_LABELS,
-  summarizeAverage,
   trackedStats as coreTrackedStats,
   visibleMilestones,
 } from "./sim/graduationCore";
@@ -684,7 +751,6 @@ const pendingChartPan = ref(0);
 const activeChartKey = ref("");
 const hoveredChartKey = ref("");
 const milestoneRefs = new Map();
-let averageWorkers = [];
 
 const artifactForm = reactive({
   source: "domain",
@@ -705,7 +771,6 @@ const graduation = reactive({
   max_runs: 10000,
   runs_per_day: 8,
   sample_count: 200,
-  worker_count: Math.min(4, Math.max(1, navigator.hardwareConcurrency || 1)),
 });
 
 const activeItemForm = computed(() => (itemGame.value === "genshin" ? artifactForm : relicForm));
@@ -714,11 +779,18 @@ const labels = computed(() => ({
   slots: { ...(meta.value?.labels?.slots ?? {}), ...SLOT_LABELS },
   stats: { ...(meta.value?.labels?.stats ?? {}), ...STAT_LABELS },
 }));
-const gameData = computed(() => GAME_STATS[graduation.game] ?? { effective: [], base: {}, hitTargets: {}, panelTargets: {} });
-const slotsForGame = computed(() =>
-  graduation.game === "genshin" ? ["flower", "plume", "sands", "goblet", "circlet"] : ["head", "hands", "body", "feet", "planar_sphere", "link_rope"],
-);
-const mainOptions = computed(() => MAIN_OPTIONS[graduation.game] ?? {});
+const fallbackGameData = {
+  effective: [],
+  base: {},
+  hitTargets: {},
+  panelTargets: {},
+  slots: graduation.game === "genshin" ? ["flower", "plume", "sands", "goblet", "circlet"] : ["head", "hands", "body", "feet", "planar_sphere", "link_rope"],
+  mainOptions: {},
+  defaultMainPlan: {},
+};
+const gameData = computed(() => meta.value?.games?.[graduation.game] ?? fallbackGameData);
+const slotsForGame = computed(() => gameData.value.slots ?? fallbackGameData.slots);
+const mainOptions = computed(() => gameData.value.mainOptions ?? {});
 const trackedStats = computed(() =>
   graduation.role === "dps" ? ["crit_rate", "crit_dmg", ...graduation.effective_tags] : [...graduation.effective_tags],
 );
@@ -743,8 +815,13 @@ const visibleMilestoneList = computed(() =>
       }))
     : [],
 );
-const maxWorkerCount = computed(() => Math.max(1, Math.min(16, navigator.hardwareConcurrency || 4)));
-const completionThresholds = COMPLETION_THRESHOLDS;
+const completionThresholds = computed(() => meta.value?.completionThresholds ?? [
+  { key: "75", ratio: 0.75, label: "75%" },
+  { key: "90", ratio: 0.9, label: "90%" },
+  { key: "95", ratio: 0.95, label: "95%" },
+  { key: "98", ratio: 0.98, label: "98%" },
+  { key: "100", ratio: 1, label: "100%" },
+]);
 const chartFrame = Object.freeze({ left: 52, right: 690, top: 28, bottom: 236 });
 const chartWidth = chartFrame.right - chartFrame.left;
 const chartHeight = chartFrame.bottom - chartFrame.top;
@@ -871,7 +948,7 @@ const completionChartPath = computed(() => {
 });
 const singleThresholdStats = computed(() => {
   const result = singleResult.value;
-  return completionThresholds.map((threshold) => {
+  return completionThresholds.value.map((threshold) => {
     const run = result?.thresholdRuns?.[threshold.key];
     return {
       ...threshold,
@@ -967,69 +1044,81 @@ const averageCostBars = computed(() => {
     };
   });
 });
-const averageBucketBars = computed(() => {
-  const buckets = compactAverageBuckets.value;
-  const maxCount = Math.max(...buckets.map((bucket) => bucket.count), 1);
-  return buckets.map((bucket, index) => {
-    const totalWidth = 608;
-    const gap = buckets.length > 1 ? 12 : 0;
-    const width = Math.max(34, (totalWidth - gap * (buckets.length - 1)) / Math.max(1, buckets.length));
-    const height = bucket.count ? Math.max(3, (bucket.count / maxCount) * 150) : 0;
+const probabilityYAxisMax = computed(() => {
+  const maxProbability = Math.max(
+    ...((averageResult.value?.completionProbability ?? []).map((point) =>
+      Math.max(0, Math.min(1, Number(point.probability) || 0)),
+    )),
+    0,
+  );
+  if (maxProbability <= 0.05) return 0.05;
+  if (maxProbability <= 0.1) return 0.1;
+  if (maxProbability <= 0.2) return 0.2;
+  if (maxProbability <= 0.5) return 0.5;
+  return 1;
+});
+const isProbabilityZoomed = computed(() => probabilityYAxisMax.value < 1);
+const probabilityScaleLabel = computed(() =>
+  isProbabilityZoomed.value
+    ? `低概率放大 · 0-${formatPercent(probabilityYAxisMax.value)}`
+    : "未达标样本作为右删失保留",
+);
+const probabilityGridLines = computed(() =>
+  [0, 0.25, 0.5, 0.75, 1].map((value) => ({
+    label: formatPercent(value * probabilityYAxisMax.value),
+    y: 214 - value * 184,
+  })),
+);
+const averageProbabilityPoints = computed(() => {
+  const points = averageResult.value?.completionProbability ?? [];
+  const maxRun = Math.max(1, Number(averageResult.value?.maxRuns) || Number(graduation.max_runs) || 1);
+  return points.map((point) => {
+    const probability = Math.max(0, Math.min(1, Number(point.probability) || 0));
+    const x = 48 + (point.run / maxRun) * 642;
+    const y = 214 - (probability / probabilityYAxisMax.value) * 184;
     return {
-      ...bucket,
-      x: 62 + index * (width + gap),
-      y: 214 - height,
-      width,
-      height,
+      ...point,
+      probability,
+      x,
+      y,
+      valueY: Math.max(22, y - 10),
+      valueText: formatPercent(probability),
     };
   });
 });
-const compactAverageBuckets = computed(() => {
-  const buckets = averageResult.value?.buckets ?? [];
-  const nonZero = buckets.filter((bucket) => bucket.count > 0);
-  const source = nonZero.length ? nonZero : buckets.slice(0, 1);
-  const visible = source.slice(0, 6).map((bucket) => ({
-    ...bucket,
-    key: `${bucket.start}-${bucket.end}`,
-    label: `${formatNumber(bucket.start)}-${formatNumber(bucket.end)} 次`,
-  }));
-  const rest = source.slice(6);
-  if (rest.length) {
-    const start = rest[0].start;
-    const end = rest[rest.length - 1].end;
-    visible.push({
-      start,
-      end,
-      count: rest.reduce((total, bucket) => total + bucket.count, 0),
-      key: `${start}-${end}`,
-      label: `${formatNumber(start)}-${formatNumber(end)} 次`,
-    });
-  }
-  return visible;
+const averageProbabilityPath = computed(() => {
+  if (!averageProbabilityPoints.value.length) return "";
+  const start = { x: 48, y: 214 };
+  return [start, ...averageProbabilityPoints.value]
+    .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`)
+    .join(" ");
 });
+const averageConservativeQuantiles = computed(() => averageResult.value?.conservativeQuantiles ?? []);
 const averageInsightCards = computed(() => {
   const thresholds = averageThresholdStats.value;
   const t90 = thresholds.find((threshold) => threshold.key === "90");
   const t100 = thresholds.find((threshold) => threshold.key === "100");
   const tailCost = Number.isFinite(t90?.average) && Number.isFinite(t100?.average) ? t100.average - t90.average : NaN;
-  const tailRatio = Number.isFinite(averageResult.value?.p95) && Number.isFinite(averageResult.value?.median) && averageResult.value.median > 0
-    ? averageResult.value.p95 / averageResult.value.median
+  const conservativeP95 = averageConservativeQuantiles.value.find((quantile) => quantile.key === "p95");
+  const p95Run = conservativeP95?.censored ? NaN : conservativeP95?.run;
+  const tailRatio = Number.isFinite(p95Run) && Number.isFinite(averageResult.value?.median) && averageResult.value.median > 0
+    ? p95Run / averageResult.value.median
     : NaN;
   return [
     {
-      label: "100% 未达标风险",
-      value: t100 ? `${((1 - t100.rate) * 100).toFixed(1)}%` : "-",
-      detail: "在上限内没有完整毕业的样本占比",
+      label: "删失风险",
+      value: averageResult.value ? `${(averageResult.value.censoredRate * 100).toFixed(1)}%` : "-",
+      detail: "到达上限仍未完整毕业的样本占比",
     },
     {
-      label: "最后 10% 提升成本",
+      label: "90% 到 100% 条件成本",
       value: formatNumber(tailCost),
-      detail: "最后一段通常最吃资源",
+      detail: "仅在两档都已达成的样本中估算",
     },
     {
-      label: "尾部波动",
+      label: "保守尾部波动",
       value: Number.isFinite(tailRatio) ? `${tailRatio.toFixed(2)}x` : "-",
-      detail: "P95 相对中位数的放大倍数",
+      detail: "保守 P95 相对条件中位数",
     },
   ];
 });
@@ -1143,6 +1232,19 @@ function formatDays(value) {
   return Number.isFinite(value) ? `${formatNumber(value)} 天` : "-";
 }
 
+function formatPercent(value) {
+  const percent = Math.max(0, Math.min(1, Number(value) || 0)) * 100;
+  const rounded = Math.round(percent);
+  const hasMeaningfulDecimal = Math.abs(percent - rounded) >= 0.05;
+  return `${percent < 10 && percent > 0 && hasMeaningfulDecimal ? percent.toFixed(1) : percent.toFixed(0)}%`;
+}
+
+function formatConservativeQuantile(key) {
+  const quantile = averageConservativeQuantiles.value.find((item) => item.key === key);
+  if (!quantile) return "-";
+  return quantile.censored ? "上限内不可估" : formatRuns(quantile.run);
+}
+
 function runtimeSeed(prefix) {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
@@ -1228,7 +1330,7 @@ function toggleTag(stat) {
 function resetGraduation() {
   const defaults = graduation.role === "dps" ? gameData.value.dpsDefaults : gameData.value.supportDefaults;
   graduation.effective_tags = [...(defaults ?? [])];
-  graduation.main_plan = { ...(DEFAULT_MAIN_PLAN[graduation.game] ?? {}) };
+  graduation.main_plan = { ...(gameData.value.defaultMainPlan ?? {}) };
   if (graduation.game === "genshin" && graduation.role === "support") {
     Object.assign(graduation.main_plan, { sands: "energy_recharge", goblet: "elemental_mastery", circlet: "elemental_mastery" });
   }
@@ -1267,6 +1369,7 @@ function currentConversionConfig() {
     game: graduation.game,
     base: graduation.base,
     mainPlan: graduation.main_plan,
+    rules: gameData.value,
   };
 }
 
@@ -1303,18 +1406,17 @@ function graduationPayload() {
     base: Object.fromEntries(stats.map((stat) => [stat, Number(graduation.base[stat] ?? 0)])),
     panelGoals: Object.fromEntries(stats.map((stat) => [stat, Math.max(0, Number(graduation.panel_goals[stat] ?? 0))])),
     hitGoals: Object.fromEntries(stats.map((stat) => [stat, Math.max(0, Number(graduation.hit_goals[stat] ?? 0))])),
-    mainPlan: Object.fromEntries(slotList(graduation.game).map((slot) => [slot, graduation.main_plan[slot]])),
+    mainPlan: Object.fromEntries(slotsForGame.value.map((slot) => [slot, graduation.main_plan[slot]])),
     maxRuns: Math.max(1, Number.parseInt(graduation.max_runs, 10) || 1),
     runsPerDay: Math.max(1, Number(graduation.runs_per_day) || 1),
     sampleCount,
-    workerCount: Math.min(maxWorkerCount.value, sampleCount, Math.max(1, Number.parseInt(graduation.worker_count, 10) || 1)),
   };
 }
 
 async function runSingleSimulation() {
   await withBusy(async () => {
     const config = { ...graduationPayload(), seed: runtimeSeed("run") };
-    singleResult.value = simulate(config);
+    singleResult.value = await simulateGraduation(config);
     resetChartView();
   });
 }
@@ -1325,84 +1427,16 @@ async function runAverageSimulation() {
     averageResult.value = null;
     averageProgress.done = 0;
     averageProgress.total = config.sampleCount;
-    await runAverageInWorker(config);
-  });
-}
-
-function stopAverageWorker() {
-  for (const worker of averageWorkers) {
-    worker.terminate();
-  }
-  averageWorkers = [];
-}
-
-function runAverageInWorker(config) {
-  stopAverageWorker();
-  return new Promise((resolve, reject) => {
-    const workerCount = config.workerCount;
-    const workerStates = Array.from({ length: workerCount }, () => ({ done: 0, sampleResults: [] }));
-    let finishedWorkers = 0;
-    let settled = false;
-
-    const aggregate = () => {
-      const done = workerStates.reduce((total, state) => total + state.done, 0);
-      const sampleResults = workerStates.flatMap((state) => state.sampleResults);
-      averageProgress.done = done;
-      averageProgress.total = config.sampleCount;
-      return summarizeAverage(config, sampleResults, done);
-    };
-
-    const finish = (callback, value) => {
-      if (settled) return;
-      settled = true;
-      stopAverageWorker();
-      callback(value);
-    };
-
-    for (let index = 0; index < workerCount; index += 1) {
-      const startIndex = Math.floor((config.sampleCount * index) / workerCount);
-      const endIndex = Math.floor((config.sampleCount * (index + 1)) / workerCount);
-      const sampleCount = endIndex - startIndex;
-      const worker = new Worker(new URL("./workers/averageWorker.js", import.meta.url), { type: "module" });
-      averageWorkers.push(worker);
-
-      worker.addEventListener("message", (event) => {
-        const { type, done, sampleResults, message } = event.data ?? {};
-        if (type === "progress" || type === "done") {
-          workerStates[index] = {
-            done: Number(done) || 0,
-            sampleResults: Array.isArray(sampleResults) ? sampleResults : [],
-          };
-          averageResult.value = aggregate();
-          if (type === "done") {
-            finishedWorkers += 1;
-            if (finishedWorkers === workerCount) finish(resolve);
-          }
-          return;
-        }
-        if (type === "error") {
-          finish(reject, new Error(message || "平均统计计算失败"));
-        }
-      });
-
-      worker.addEventListener("error", (event) => {
-        finish(reject, new Error(event.message || "平均统计 Worker 运行失败"));
-      });
-
-      worker.postMessage({ config, startIndex, sampleCount });
-    }
+    averageResult.value = await summarizeGraduationAverage(config);
+    averageProgress.done = averageResult.value.done;
   });
 }
 
 onMounted(async () => {
-  resetGraduation();
   await withBusy(async () => {
     meta.value = await getMeta();
+    resetGraduation();
     resetItemPools();
   });
-});
-
-onUnmounted(() => {
-  stopAverageWorker();
 });
 </script>

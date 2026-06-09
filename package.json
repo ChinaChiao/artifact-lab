@@ -1,0 +1,21 @@
+{
+  "scripts": {
+    "dev": "tauri dev",
+    "frontend:dev": "cd frontend && npm run dev",
+    "frontend:build": "cd frontend && npm run build",
+    "rust:build": "cargo build --workspace",
+    "rust:test": "cargo test --workspace",
+    "check": "npm run rust:test && npm run frontend:build",
+    "build": "npm run check && npm run tauri:build",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "package:msi": "powershell -ExecutionPolicy Bypass -File .\\scripts\\package.ps1"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.2"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.11.0"
+  }
+}

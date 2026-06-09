@@ -1,47 +1,34 @@
-# Python
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-.Python
-.venv/
-venv/
-env/
-.env
-.env.*
-!.env.example
+# Rust
+target/
+Cargo.lock
 
-# Node / Vue
+# Node
 node_modules/
-frontend/node_modules/
 dist/
 frontend/dist/
-.vite/
 
-# Logs and local runtime files
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
 
-# Playwright and generated output
-.playwright-cli/
-frontend/.playwright-cli/
-output/
-test-results/
-playwright-report/
-
-# OS / editor
+# OS
 .DS_Store
 Thumbs.db
-.idea/
-.vscode/
 
-# Local reference documents
-知乎1.docx
-知乎2.docx
-米友社.docx
+# Tauri
+src-tauri/target/
 
-# Local-only archived prototypes
-local-html-archive/
+# Python (legacy)
+__pycache__/
+*.pyc
+.pytest_cache/
+venv/
+
+# Build artifacts
+*.exe
+*.app
+*.dmg
+*.deb
+*.AppImage
